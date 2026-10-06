@@ -1,0 +1,843 @@
+{
+  "version": 1,
+  "generator": "tools/build_assets.py",
+  "groups": {
+    "character": {
+      "canvas": [
+        512,
+        1024
+      ],
+      "layers": [
+        {
+          "name": "back_hair",
+          "file": "character_back_hair.png",
+          "z": 0,
+          "rect": [
+            25,
+            81,
+            462,
+            733
+          ],
+          "pivot": [
+            0.5,
+            0.17
+          ],
+          "channels": [
+            "sway_slow",
+            "breathe",
+            "low_energy"
+          ]
+        },
+        {
+          "name": "body",
+          "file": "character_body.png",
+          "z": 1,
+          "rect": [
+            116,
+            88,
+            280,
+            613
+          ],
+          "pivot": [
+            0.5,
+            0.46
+          ],
+          "channels": [
+            "breathe"
+          ]
+        },
+        {
+          "name": "outfit",
+          "file": "character_outfit.png",
+          "z": 2,
+          "rect": [
+            122,
+            173,
+            267,
+            830
+          ],
+          "pivot": [
+            0.5,
+            0.34
+          ],
+          "channels": [
+            "breathe",
+            "sway_fast"
+          ]
+        },
+        {
+          "name": "outfit_trim",
+          "file": "character_outfit_trim.png",
+          "z": 3,
+          "rect": [
+            115,
+            318,
+            281,
+            675
+          ],
+          "pivot": [
+            0.5,
+            0.34
+          ],
+          "channels": [
+            "breathe",
+            "sway_fast",
+            "spectral_glow"
+          ]
+        },
+        {
+          "name": "face",
+          "file": "character_face.png",
+          "z": 4,
+          "rect": [
+            210,
+            93,
+            91,
+            212
+          ],
+          "pivot": [
+            0.5,
+            0.21
+          ],
+          "channels": [
+            "head_bob",
+            "breathe"
+          ]
+        },
+        {
+          "name": "eyes_open",
+          "file": "character_eyes_open.png",
+          "z": 5,
+          "rect": [
+            221,
+            174,
+            69,
+            54
+          ],
+          "pivot": [
+            0.5,
+            0.2
+          ],
+          "channels": [
+            "head_bob",
+            "blink",
+            "eye_track",
+            "spectral_glow"
+          ]
+        },
+        {
+          "name": "eyes_half",
+          "file": "character_eyes_half.png",
+          "z": 5,
+          "rect": [
+            221,
+            192,
+            69,
+            25
+          ],
+          "pivot": [
+            0.5,
+            0.2
+          ],
+          "channels": [
+            "head_bob",
+            "blink",
+            "eye_track"
+          ]
+        },
+        {
+          "name": "eyes_closed",
+          "file": "character_eyes_closed.png",
+          "z": 5,
+          "rect": [
+            218,
+            200,
+            75,
+            9
+          ],
+          "pivot": [
+            0.5,
+            0.2
+          ],
+          "channels": [
+            "head_bob",
+            "blink"
+          ]
+        },
+        {
+          "name": "mouth_neutral",
+          "file": "character_mouth_neutral.png",
+          "z": 6,
+          "rect": [
+            243,
+            233,
+            25,
+            8
+          ],
+          "pivot": [
+            0.5,
+            0.22
+          ],
+          "channels": [
+            "head_bob",
+            "mouth"
+          ]
+        },
+        {
+          "name": "mouth_open",
+          "file": "character_mouth_open.png",
+          "z": 6,
+          "rect": [
+            246,
+            228,
+            20,
+            25
+          ],
+          "pivot": [
+            0.5,
+            0.22
+          ],
+          "channels": [
+            "head_bob",
+            "mouth"
+          ]
+        },
+        {
+          "name": "mouth_smile",
+          "file": "character_mouth_smile.png",
+          "z": 6,
+          "rect": [
+            241,
+            230,
+            29,
+            15
+          ],
+          "pivot": [
+            0.5,
+            0.22
+          ],
+          "channels": [
+            "head_bob",
+            "mouth"
+          ]
+        },
+        {
+          "name": "front_hair",
+          "file": "character_front_hair.png",
+          "z": 7,
+          "rect": [
+            201,
+            71,
+            109,
+            180
+          ],
+          "pivot": [
+            0.5,
+            0.14
+          ],
+          "channels": [
+            "sway_fast",
+            "head_bob",
+            "low_energy"
+          ]
+        },
+        {
+          "name": "accessories",
+          "file": "character_accessories.png",
+          "z": 8,
+          "rect": [
+            186,
+            172,
+            140,
+            54
+          ],
+          "pivot": [
+            0.5,
+            0.19
+          ],
+          "channels": [
+            "head_bob",
+            "spectral_glow",
+            "sway_fast"
+          ]
+        },
+        {
+          "name": "glow_fx",
+          "file": "character_glow_fx.png",
+          "z": 9,
+          "rect": [
+            122,
+            40,
+            267,
+            533
+          ],
+          "pivot": [
+            0.5,
+            0.3
+          ],
+          "channels": [
+            "spectral_glow",
+            "low_energy",
+            "react"
+          ]
+        }
+      ]
+    },
+    "dragon": {
+      "canvas": [
+        1024,
+        512
+      ],
+      "layers": [
+        {
+          "name": "wing_r",
+          "file": "dragon_wing_r.png",
+          "z": 8,
+          "rect": [
+            368,
+            153,
+            451,
+            206
+          ],
+          "pivot": [
+            0.78,
+            0.6
+          ],
+          "channels": [
+            "wing_flap",
+            "spline_2",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "wing_l",
+          "file": "dragon_wing_l.png",
+          "z": 9,
+          "rect": [
+            306,
+            91,
+            513,
+            349
+          ],
+          "pivot": [
+            0.78,
+            0.6
+          ],
+          "channels": [
+            "wing_flap",
+            "spline_2",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_00",
+          "file": "dragon_body_00.png",
+          "z": 10,
+          "rect": [
+            424,
+            221,
+            175,
+            69
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_0",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_01",
+          "file": "dragon_body_01.png",
+          "z": 11,
+          "rect": [
+            429,
+            223,
+            166,
+            66
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_1",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_02",
+          "file": "dragon_body_02.png",
+          "z": 12,
+          "rect": [
+            433,
+            225,
+            158,
+            62
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_2",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_03",
+          "file": "dragon_body_03.png",
+          "z": 13,
+          "rect": [
+            437,
+            226,
+            149,
+            59
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_3",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_04",
+          "file": "dragon_body_04.png",
+          "z": 14,
+          "rect": [
+            442,
+            228,
+            140,
+            55
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_4",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_05",
+          "file": "dragon_body_05.png",
+          "z": 15,
+          "rect": [
+            446,
+            230,
+            131,
+            52
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_5",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_06",
+          "file": "dragon_body_06.png",
+          "z": 16,
+          "rect": [
+            450,
+            231,
+            123,
+            49
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_6",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "body_07",
+          "file": "dragon_body_07.png",
+          "z": 17,
+          "rect": [
+            455,
+            233,
+            114,
+            45
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_7",
+            "band_energy",
+            "spectral_glow",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "tail_00",
+          "file": "dragon_tail_00.png",
+          "z": 20,
+          "rect": [
+            460,
+            237,
+            104,
+            37
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_8",
+            "tail_drag",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "tail_01",
+          "file": "dragon_tail_01.png",
+          "z": 21,
+          "rect": [
+            470,
+            241,
+            83,
+            30
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_9",
+            "tail_drag",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "tail_02",
+          "file": "dragon_tail_02.png",
+          "z": 22,
+          "rect": [
+            480,
+            244,
+            63,
+            23
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_10",
+            "tail_drag",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "tail_03",
+          "file": "dragon_tail_03.png",
+          "z": 23,
+          "rect": [
+            491,
+            248,
+            42,
+            15
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [
+            "spline_11",
+            "tail_drag",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "jaw",
+          "file": "dragon_jaw.png",
+          "z": 29,
+          "rect": [
+            92,
+            265,
+            256,
+            42
+          ],
+          "pivot": [
+            0.34,
+            0.54
+          ],
+          "channels": [
+            "spline_head",
+            "look_at",
+            "roar"
+          ]
+        },
+        {
+          "name": "head",
+          "file": "dragon_head.png",
+          "z": 30,
+          "rect": [
+            61,
+            162,
+            396,
+            188
+          ],
+          "pivot": [
+            0.3,
+            0.5
+          ],
+          "channels": [
+            "spline_head",
+            "look_at",
+            "roar",
+            "ghost_trail"
+          ]
+        },
+        {
+          "name": "eye",
+          "file": "dragon_eye.png",
+          "z": 31,
+          "rect": [
+            253,
+            239,
+            36,
+            14
+          ],
+          "pivot": [
+            0.3,
+            0.5
+          ],
+          "channels": [
+            "spline_head",
+            "look_at",
+            "spectral_glow",
+            "roar"
+          ]
+        },
+        {
+          "name": "fire",
+          "file": "dragon_fire.png",
+          "z": 32,
+          "rect": [
+            0,
+            230,
+            102,
+            50
+          ],
+          "pivot": [
+            0.08,
+            0.5
+          ],
+          "channels": [
+            "fire",
+            "spectral_glow"
+          ]
+        }
+      ]
+    }
+  },
+  "scenes": {
+    "neon_city": {
+      "canvas": [
+        1024,
+        640
+      ],
+      "layers": [
+        {
+          "name": "far",
+          "file": "scenes_neon_city_far.png",
+          "z": 0,
+          "rect": [
+            0,
+            166,
+            1024,
+            474
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.15
+        },
+        {
+          "name": "mid",
+          "file": "scenes_neon_city_mid.png",
+          "z": 1,
+          "rect": [
+            103,
+            239,
+            836,
+            401
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.4
+        },
+        {
+          "name": "near",
+          "file": "scenes_neon_city_near.png",
+          "z": 2,
+          "rect": [
+            0,
+            547,
+            1024,
+            55
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.9
+        }
+      ]
+    },
+    "shrine_dusk": {
+      "canvas": [
+        1024,
+        640
+      ],
+      "layers": [
+        {
+          "name": "far",
+          "file": "scenes_shrine_dusk_far.png",
+          "z": 0,
+          "rect": [
+            0,
+            108,
+            891,
+            532
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.15
+        },
+        {
+          "name": "mid",
+          "file": "scenes_shrine_dusk_mid.png",
+          "z": 1,
+          "rect": [
+            135,
+            311,
+            405,
+            328
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.4
+        },
+        {
+          "name": "near",
+          "file": "scenes_shrine_dusk_near.png",
+          "z": 2,
+          "rect": [
+            45,
+            492,
+            907,
+            80
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.9
+        }
+      ]
+    },
+    "cosmic_void": {
+      "canvas": [
+        1024,
+        640
+      ],
+      "layers": [
+        {
+          "name": "far",
+          "file": "scenes_cosmic_void_far.png",
+          "z": 0,
+          "rect": [
+            20,
+            38,
+            984,
+            564
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.1
+        },
+        {
+          "name": "mid",
+          "file": "scenes_cosmic_void_mid.png",
+          "z": 1,
+          "rect": [
+            110,
+            201,
+            804,
+            238
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.35
+        },
+        {
+          "name": "near",
+          "file": "scenes_cosmic_void_near.png",
+          "z": 2,
+          "rect": [
+            214,
+            135,
+            658,
+            407
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "channels": [],
+          "parallax": 0.8
+        }
+      ]
+    }
+  }
+}

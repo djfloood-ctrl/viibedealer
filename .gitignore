@@ -1,0 +1,26 @@
+# Build trees. Never "build/" -- that name belongs to the mgfx project next door.
+build-ninja/
+build-vs/
+build-*/
+cmake-build*/
+
+# Packaged builds. Reproducible from source via tools/package.ps1, so there is no
+# reason to carry ~18 MB per release in history.
+dist/
+
+# Tooling
+tools/bin/
+*.user
+.vs/
+.idea/
+.cache/
+compile_commands.json
+
+# Generated art intermediates (the committed PNGs under assets/ are tracked)
+assets/.render-cache/
+*.blend1
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
