@@ -1,0 +1,133 @@
+# Builds the macOS artefacts on a hosted Mac.
+#
+# This exists because there is no cross-compile path: the AU and VST3 bundles need the
+# macOS SDK and codesign, so they cannot be produced on the Windows machine this project
+# is developed on. Push to a branch or run this workflow by hand, then download the zip
+# from the run's Artifacts section.
+#
+# Run it manually: Actions > macOS build > Run workflow.
+
+name: macOS build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string for the zip filename'
+        required: false
+        default: '1.0.0'
+
+jobs:
+  build:
+    name: Universal (arm64 + x86_64)
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: brew install ninja
+
+      - name: Configure
+        # VBD_WERROR is off here deliberately. This code was written and warning-cleaned
+        # under MSVC; Clang's -Wconversion and -Wold-style-cast fire in places MSVC is
+        # silent, and a pedantic warning that does not change the binary must not be what
+        # stops a test build reaching the person waiting for it. The strict job below
+        # reports those warnings as errors without blocking this one.
+        run: |
+          cmake -B build-mac -G "Ninja Multi-Config" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DVBD_WERROR=OFF \
+            -DVBD_BUILD_TESTS=ON \
+            .
+
+      - name: Build
+        run: cmake --build build-mac --config Release
+
+      - name: Verify both architectures are present
+        # A universal build that silently produced a single-arch binary would look fine
+        # here and fail on the recipient's Intel Mac, so assert it rather than trust it.
+        run: |
+          set -euo pipefail
+          for b in \
+            build-mac/viibedealer_artefacts/Release/VST3/VIIBEDEALER.vst3/Contents/MacOS/VIIBEDEALER \
+            build-mac/viibedealer_artefacts/Release/AU/VIIBEDEALER.component/Contents/MacOS/VIIBEDEALER
+          do
+            echo "$b"
+            archs="$(lipo -archs "$b")"
+            echo "  archs: $archs"
+            for want in arm64 x86_64; do
+              case "$archs" in
+                *"$want"*) ;;
+                *) echo "::error::$b is missing $want"; exit 1 ;;
+              esac
+            done
+          done
+
+      - name: Check the code signatures are valid
+        run: |
+          codesign --verify --verbose \
+            build-mac/viibedealer_artefacts/Release/VST3/VIIBEDEALER.vst3
+          codesign --verify --verbose \
+            build-mac/viibedealer_artefacts/Release/AU/VIIBEDEALER.component
+
+      - name: Unit tests
+        run: ctest --test-dir build-mac --build-config Release --output-on-failure
+
+      - name: Validate the AU with auval
+        # auval is the validator Logic and GarageBand gate on. Non-blocking: a first-ever
+        # AU build failing validation is information worth having, not a reason to withhold
+        # the VST3, which is what FL Studio will load anyway.
+        continue-on-error: true
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R build-mac/viibedealer_artefacts/Release/AU/VIIBEDEALER.component \
+                ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          auval -v aufx Vbdl Flod
+
+      - name: Validate the VST3 with pluginval
+        continue-on-error: true
+        run: |
+          curl -sL -o pluginval.zip \
+            https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_macOS.zip
+          unzip -q pluginval.zip
+          xattr -dr com.apple.quarantine pluginval.app 2>/dev/null || true
+          ./pluginval.app/Contents/MacOS/pluginval --strictness-level 10 --validate \
+            build-mac/viibedealer_artefacts/Release/VST3/VIIBEDEALER.vst3
+
+      - name: Package
+        run: |
+          ./tools/package_mac.sh \
+            --build-dir build-mac \
+            --version "${{ github.event.inputs.version || '1.0.0' }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VIIBEDEALER-macOS
+          path: dist/*.zip
+          if-no-files-found: error
+
+  strict:
+    name: Strict warnings (informational)
+    runs-on: macos-14
+    # Reports what Clang thinks of our sources with -Werror on, without gating the build
+    # above. Fix these over time; do not let them block a tester's download today.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install ninja
+      - name: Configure with -Werror
+        run: |
+          cmake -B build-strict -G "Ninja Multi-Config" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DVBD_WERROR=ON \
+            -DVBD_BUILD_TESTS=ON \
+            .
+      - name: Build
+        run: cmake --build build-strict --config Release

@@ -17,7 +17,7 @@ moves with the audio.
 | Platform | Needs |
 |---|---|
 | Windows | Visual Studio 2022 with the **Desktop development with C++** workload, CMake ≥ 3.22, Git |
-| macOS | Xcode command line tools (`xcode-select --install`), CMake ≥ 3.22, Git |
+| macOS | Xcode command line tools (`xcode-select --install`), CMake ≥ 3.22, Ninja, Git — or no Mac at all, and the [CI workflow](.github/workflows/macos.yml) instead |
 | Linux | gcc 11+ or clang 14+, CMake ≥ 3.22, Git, plus the JUCE dependencies below |
 
 JUCE is fetched automatically by CMake — there is nothing to install or vendor.
@@ -65,17 +65,59 @@ build-ninja/viibedealer_artefacts/Release/
 └── Standalone/VIIBEDEALER.exe
 ```
 
-On macOS an `AU/VIIBEDEALER.component` appears alongside them.
+On macOS the layout is `VST3/VIIBEDEALER.vst3`, `AU/VIIBEDEALER.component` and
+`Standalone/VIIBEDEALER.app`, all built as universal binaries.
 
-> **AU and Linux builds are written but unverified.** Everything in this repo was developed
-> and tested on Windows. The CMake paths for the other platforms are correct by
-> construction, not by observation.
+> **The macOS and Linux builds are unverified.** Everything in this repo was developed and
+> tested on Windows. The macOS build is wired up end to end — universal binary, AU, ad-hoc
+> codesigning, packaging — and CI exercises it on a hosted Mac, but no one has yet run the
+> plugin in a DAW on macOS. Treat the first Mac build as a test build.
+
+### Building on macOS
+
+There is **no cross-compile path from Windows**: the AU and VST3 bundles need the macOS SDK
+and `codesign`. The Mac artefacts have to be built on a Mac, either locally:
+
+```bash
+./tools/build_mac.sh                 # Release, universal (arm64 + x86_64)
+./tools/build_mac.sh --native        # this Mac's architecture only, much faster
+./tools/build_mac.sh --tests         # build and run the unit tests
+./tools/build_mac.sh --no-werror     # do not let a warning fail the build
+```
+
+or on a hosted Mac without owning one — **Actions → macOS build → Run workflow**, then
+download the zip from the run's Artifacts section
+([`.github/workflows/macos.yml`](.github/workflows/macos.yml)). That workflow builds
+universal, asserts both architectures are actually present, verifies the signatures, runs
+the unit tests, and runs `auval` and pluginval as non-blocking checks.
+
+Three macOS-specific things worth knowing:
+
+- **Universal by default.** `CMAKE_OSX_ARCHITECTURES` is `arm64;x86_64` and the deployment
+  target is 10.13, so one bundle covers Apple Silicon and Intel. Override either on the
+  command line for a faster local build.
+- **Bundles are ad-hoc signed** (`VBD_CODESIGN_IDENTITY`, default `-`). On Apple Silicon an
+  unsigned binary is killed by the kernel rather than warned about, and JUCE's resource copy
+  invalidates the linker's own signature, so the finished bundle is re-signed post-build.
+  Pass a real `Developer ID Application:` identity for a build you intend to distribute
+  without the quarantine step below.
+- **Gatekeeper quarantine.** An ad-hoc signed, unnotarised plugin will not load once it has
+  been downloaded or unzipped until the quarantine flag is cleared. Both
+  `tools/install_mac.sh` and the `install.command` inside the packaged zip do this. By hand:
+  `xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/VIIBEDEALER.vst3`. In FL
+  Studio the symptom without it is that the plugin never appears after a scan, with no
+  error.
 
 ### Installing into a DAW
 
 ```powershell
-.\tools\install_vst3.ps1              # per-user
+.\tools\install_vst3.ps1              # Windows, per-user
 .\tools\install_vst3.ps1 -System      # C:\Program Files\Common Files\VST3
+```
+
+```bash
+./tools/install_mac.sh                # macOS, per-user (~/Library), no password
+./tools/install_mac.sh --system       # /Library, asks for your password
 ```
 
 Or copy the whole `VIIBEDEALER.vst3` **folder** by hand:
@@ -92,12 +134,22 @@ Then rescan: **FL Studio** → Options → Manage plugins → Find more plugins.
 ### Packaging for someone else
 
 ```powershell
-.\tools\package.ps1 -Standalone
+.\tools\package.ps1 -Standalone                  # Windows
 ```
 
-Produces `dist/VIIBEDEALER-<version>-win64.zip` with the bundle, the standalone and an
-`INSTALL.txt`. The MSVC runtime is linked statically, so the recipient needs no
-redistributable.
+```bash
+./tools/package_mac.sh --version 1.0.0           # macOS
+```
+
+The Windows script produces `dist/VIIBEDEALER-<version>-win64.zip` with the bundle, the
+standalone and an `INSTALL.txt`. The MSVC runtime is linked statically, so the recipient
+needs no redistributable.
+
+The macOS script produces `dist/VIIBEDEALER-<version>-macOS.zip` with the VST3, the AU, the
+standalone, an `INSTALL.txt` and a double-clickable `install.command` that copies both
+plugins into `~/Library` and clears the quarantine flag — so the recipient does not have to
+know about `xattr`. It packs with `ditto` rather than `zip`, because a plain `zip` can break
+an ad-hoc signed bundle in transit.
 
 ### Tests
 
@@ -107,8 +159,9 @@ redistributable.
 ./build-ninja/tests/.../viibedealer_tests --shot out.png 1000   # render the GUI
 ```
 
-`tools/get_pluginval.ps1` downloads pluginval; the plugin is validated clean at
-**strictness 10**.
+`tools/get_pluginval.ps1` downloads pluginval on Windows; the plugin is validated clean at
+**strictness 10**. The macOS workflow fetches pluginval itself and additionally runs
+`auval -v aufx Vbdl Flod` against the AU, both as non-blocking checks.
 
 ---
 
@@ -310,8 +363,10 @@ src/gui/          look and feel, visualisers, panels — no DSP
 src/character/    the illustrated layer — reads only the lock-free snapshot
 src/state/        presets and the randomiser
 tools/            build, install, package, and the Blender art pipeline
+                  *.ps1 are Windows, *_mac.sh are macOS, *.py are the art pipeline
 assets/           committed character art + manifest.json
 tests/            unit tests, CPU benchmark, GUI screenshot
+.github/          CI — macos.yml builds the Mac artefacts on a hosted Mac
 ```
 
 Real-time safety: no allocation, locks, file I/O or logging on the audio thread; everything

@@ -5,6 +5,12 @@
 *.ps1 text eol=crlf
 *.bat text eol=crlf
 
+# Shell scripts must stay LF even when committed from Windows. A CRLF shebang fails on
+# macOS with "bad interpreter: /usr/bin/env bash^M", which is an obscure way to discover
+# a line-ending problem.
+*.sh text eol=lf
+*.command text eol=lf
+
 # Art and binary assets must never be line-ending converted.
 *.png binary
 *.jpg binary

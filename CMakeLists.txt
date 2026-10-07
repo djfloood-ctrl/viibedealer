@@ -7,7 +7,23 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.0)
     set(CMAKE_POLICY_VERSION_MINIMUM 3.22 CACHE STRING "" FORCE)
 endif()
 
-project(VIIBEDEALER VERSION 0.1.0 LANGUAGES C CXX)
+# macOS deployment settings must be set BEFORE project(), because the compiler checks that
+# project() runs bake them in. One bundle covers both Apple Silicon and Intel, and 10.13 is
+# old enough that we are never the reason someone has to update their OS.
+#
+# CMAKE_HOST_APPLE, not APPLE: APPLE is set during project()'s platform detection, so an
+# if(APPLE) guard here would never fire and the arch setting would silently do nothing.
+# The CMAKE_HOST_* variables are populated before project() runs, which is what makes this
+# testable from a non-Mac.
+#
+# Both are plain `set(... CACHE)` without FORCE, so -DCMAKE_OSX_ARCHITECTURES=arm64 on the
+# command line still wins -- useful for a fast local build on an M-series Mac.
+if(CMAKE_HOST_APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "macOS build architectures")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version")
+endif()
+
+project(VIIBEDEALER VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -41,7 +57,8 @@ FetchContent_MakeAvailable(JUCE)
 # ---------------------------------------------------------------------------- plugin
 set(VBD_FORMATS VST3 Standalone)
 if(APPLE)
-    # Untested from Windows -- correct by construction, unverified until built on a Mac.
+    # FL Studio on macOS scans both VST3 and AU, and other hosts (Logic, GarageBand) take
+    # AU only, so build both rather than making the user care which one they have.
     list(APPEND VBD_FORMATS AU)
 endif()
 
@@ -137,6 +154,40 @@ target_link_libraries(viibedealer
     PRIVATE
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags)
+
+# ---------------------------------------------------------------------------- codesigning
+#
+# On Apple Silicon an unsigned binary is killed by the kernel rather than merely warned
+# about, so a plugin that is not signed at all does not load -- it just never appears after
+# a scan. The linker ad-hoc signs the executable it produces, but JUCE then copies
+# resources into the bundle, which invalidates that seal. Re-signing the finished bundle is
+# what makes it actually loadable.
+#
+# The default "-" is an ad-hoc signature: enough for the plugin to run on the machine that
+# built it and on others once Gatekeeper's quarantine flag is cleared (tools/install_mac.sh
+# and the generated INSTALL.txt both handle that). For a build you intend to distribute
+# without that step, pass a real Developer ID:
+#
+#     cmake -B build-mac -DVBD_CODESIGN_IDENTITY="Developer ID Application: ..." .
+#
+# and notarise the zip afterwards.
+if(APPLE)
+    set(VBD_CODESIGN_IDENTITY "-" CACHE STRING
+        "codesign identity for macOS bundles; \"-\" is ad-hoc, empty disables signing")
+
+    if(VBD_CODESIGN_IDENTITY)
+        foreach(_fmt VST3 AU Standalone)
+            if(TARGET viibedealer_${_fmt})
+                add_custom_command(TARGET viibedealer_${_fmt} POST_BUILD
+                    COMMAND codesign --force --timestamp=none
+                            --sign "${VBD_CODESIGN_IDENTITY}"
+                            "$<TARGET_BUNDLE_DIR:viibedealer_${_fmt}>"
+                    COMMENT "Codesigning ${_fmt} bundle (${VBD_CODESIGN_IDENTITY})"
+                    VERBATIM)
+            endif()
+        endforeach()
+    endif()
+endif()
 
 # ---------------------------------------------------------------------------- tests
 option(VBD_BUILD_TESTS "Build the unit test runner" ON)
