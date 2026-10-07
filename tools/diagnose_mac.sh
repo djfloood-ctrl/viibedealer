@@ -18,6 +18,9 @@
 echo "=============================================="
 echo " VIIBEDEALER macOS install diagnostic"
 echo "=============================================="
+echo "This script changes nothing, installs nothing, and needs no developer tools."
+echo "If macOS ever offers to install command line developer tools, press Cancel."
+echo ""
 echo "date:        $(date)"
 echo "macOS:       $(sw_vers -productVersion 2>/dev/null) ($(uname -m))"
 echo "shell:       ${BASH_VERSION:-unknown}"
@@ -106,9 +109,25 @@ do
     bin="$target/Contents/MacOS/VIIBEDEALER"
     if [ -f "$bin" ]; then
         echo "  binary:  $bin"
-        echo "  archs:   $(lipo -archs "$bin" 2>&1)"
         echo "  this Mac needs: $(uname -m)"
-        echo "  min macOS:  $(otool -l "$bin" 2>/dev/null | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
+
+        # `file` ships with macOS. lipo and otool do NOT -- they come with the Xcode
+        # command line tools, and invoking them on a Mac without those installed pops
+        # Apple's "install developer tools?" dialog and a ~2 GB download. A tester should
+        # never be ambushed by that, so they are strictly optional here.
+        #
+        # `command -v lipo` is NOT a valid guard: /usr/bin/lipo exists as a stub whether
+        # or not the tools are installed, and running the stub is precisely what triggers
+        # the dialog. xcode-select -p is the real test, and asking it is harmless.
+        echo "  archs:   $(file -b "$bin" 2>&1)"
+
+        if xcode-select -p >/dev/null 2>&1; then
+            echo "  lipo:    $(lipo -archs "$bin" 2>&1)"
+            echo "  min macOS:  $(otool -l "$bin" 2>/dev/null | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')"
+        else
+            echo "  (developer tools absent -- skipping lipo/otool so macOS does not"
+            echo "   prompt to install them. The archs line above is sufficient.)"
+        fi
     else
         echo "  >>> NO BINARY at $bin -- the bundle is malformed or truncated."
         echo "  >>> Most likely the zip was extracted and re-zipped on Windows."
